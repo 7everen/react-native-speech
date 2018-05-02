@@ -7,11 +7,11 @@
 React Native Speech is a text-to-speech library for [React Native](https://facebook.github.io/react-native/).
 
 ## Documentation
-- [Install](https://github.com/naoufal/react-native-speech#install)
-- [Usage](https://github.com/naoufal/react-native-speech#usage)
-- [Example](https://github.com/naoufal/react-native-speech#example)
-- [Methods](https://github.com/naoufal/react-native-speech#methods)
-- [License](https://github.com/naoufal/react-native-speech#license)
+- [Install](#install)
+- [Usage](#usage)
+- [Example](#example)
+- [Methods](#methods)
+- [License](#license)
 
 ## Install
 ```shell
@@ -45,11 +45,22 @@ var Speech = require('react-native-speech');
 var YourComponent = React.createClass({
   _startHandler() {
     Speech.speak({
-      text: 'Aujourd\'hui, Maman est morte. Ou peut-être hier, je ne sais pas.',
+      text: 'Nous faisons le test 1',
       voice: 'fr-FR'
     })
     .then(started => {
-      console.log('Speech started');
+      console.log('Fin du test 1');
+      return Speech.speak({
+        text: 'Et voilà le test 2',
+        voice: 'fr-FR'
+      })
+    })
+    .then(started => {
+      console.log('Fin du test 2');
+      return Speech.speak({
+        text: 'Et maintenant le test 3',
+        voice: 'fr-FR'
+      })
     })
     .catch(error => {
       console.log('You\'ve already started a speech instance.');
@@ -119,6 +130,10 @@ Speech.speak({
   voice: 'en-US'
 });
 ```
+
+__Android feature__
+If you don't add forceStop = true argument to speak parameters your next speech will be queue. 
+
 
 ### pause()
 Pauses the speech instance.

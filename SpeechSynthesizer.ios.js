@@ -1,18 +1,9 @@
-/**
- * @providesModule SpeechSynthesizer
- * @flow
- */
-'use strict';
-
-var React = require('react-native');
-var { NativeModules } = React;
+import { NativeModules }from 'react-native';
 var NativeSpeechSynthesizer = NativeModules.SpeechSynthesizer;
 
-/**
- * High-level docs for the SpeechSynthesizer iOS API can be written here.
- */
 
-var SpeechSynthesizer = {
+
+export default {
   speak(options) {
     return new Promise(function(resolve, reject) {
       NativeSpeechSynthesizer.speakUtterance(options, function(error, success) {
@@ -20,6 +11,17 @@ var SpeechSynthesizer = {
           return reject(error);
         }
 
+        resolve(true);
+      });
+    });
+  },
+
+  speakWithFinish(options) {
+    return new Promise(function (resolve, reject) {
+      NativeSpeechSynthesizer.speakUtteranceWithFinish(options, function (error, success) {
+        if (error) {
+          return reject(error);
+        }
         resolve(true);
       });
     });
@@ -76,4 +78,3 @@ var SpeechSynthesizer = {
   }
 };
 
-module.exports = SpeechSynthesizer;

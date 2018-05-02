@@ -1,17 +1,41 @@
+import { NativeModules } from 'react-native'
+
+const NativeSpeechSynthesizer = NativeModules.SpeechSynthesizer;
+
 /**
- * Stub of SpeechSynthesizer for Android.
- *
- * @providesModule SpeechSynthesizer
- * @flow
+ * High-level docs for the SpeechSynthesizer Android API can be written here.
  */
-'use strict';
 
-var warning = require('warning');
+export default {
+  test () {
+    return NativeSpeechSynthesizer.reactNativeSpeech();
+  },
 
-var SpeechSynthesizer = {
-  test: function() {
-    warning("Not yet implemented for Android.");
+  supportedVoices() {
+    return NativeSpeechSynthesizer.supportedVoices();
+  },
+
+  isSpeaking() {
+    return NativeSpeechSynthesizer.isSpeaking();
+  },
+
+  isPaused() {
+    return NativeSpeechSynthesizer.isPaused();
+  },
+
+  resume() {
+    return NativeSpeechSynthesizer.resume();
+  },
+
+  pause() {
+    return NativeSpeechSynthesizer.pause();
+  },
+
+  stop() {
+    return NativeSpeechSynthesizer.stop();
+  },
+
+  speak(options) {
+    return NativeSpeechSynthesizer.speak(options);
   }
 };
-
-module.exports = SpeechSynthesizer;

@@ -1,8 +1,8 @@
 {
-  "name": "react-native-speech",
+  "name": "ejoy-react-native-speech",
   "version": "0.1.2",
   "description": "A text-to-speech library for React Native.",
-  "main": "SpeechSynthesizer.ios.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +17,7 @@
     "siri",
     "speech",
     "speak",
+    "text-to-speech",
     "speech-to-text",
     "react-component",
     "react-native-component"
@@ -26,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/naoufal/react-native-speech/issues"
   },
-  "homepage": "https://github.com/naoufal/react-native-speech"
+  "homepage": "https://github.com/naoufal/react-native-speech",
+  "devDependencies": {
+    "eslint": "^4.19.1"
+  }
 }
