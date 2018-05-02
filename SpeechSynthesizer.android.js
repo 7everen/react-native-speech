@@ -6,7 +6,7 @@ const NativeSpeechSynthesizer = NativeModules.SpeechSynthesizer;
  * High-level docs for the SpeechSynthesizer Android API can be written here.
  */
 
-export default {
+const SpeechSynthesizer =  {
   test () {
     return NativeSpeechSynthesizer.reactNativeSpeech();
   },
@@ -37,5 +37,11 @@ export default {
 
   speak(options) {
     return NativeSpeechSynthesizer.speak(options);
-  }
+  },
+
+  speakWithFinish(options){
+    return NativeSpeechSynthesizer.speakWithFinish(options);
+  },
 };
+
+module.exports = SpeechSynthesizer;
