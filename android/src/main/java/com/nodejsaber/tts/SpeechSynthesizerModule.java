@@ -158,11 +158,10 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
     public void stop(final Promise promise) {
         new GuardedAsyncTask<Void,Void>(getReactApplicationContext()){
             @Override
-            protected  void doInBackgroundGuarded(Void... params){
+            protected void doInBackgroundGuarded(Void... params){ 
                 try {
                     tts.stop();
                     promise.resolve(true);
-
                 } catch (Exception e){
                     promise.reject(e.getMessage());
                 }

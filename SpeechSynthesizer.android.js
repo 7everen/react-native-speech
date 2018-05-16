@@ -6,42 +6,42 @@ const NativeSpeechSynthesizer = NativeModules.SpeechSynthesizer;
  * High-level docs for the SpeechSynthesizer Android API can be written here.
  */
 
-const SpeechSynthesizer =  {
-  test () {
+class SpeechSynthesizer {
+  static test() {
     return NativeSpeechSynthesizer.reactNativeSpeech();
-  },
+  }
 
-  supportedVoices() {
+  static supportedVoices() {
     return NativeSpeechSynthesizer.supportedVoices();
-  },
+  }
 
-  isSpeaking() {
+  static isSpeaking() {
     return NativeSpeechSynthesizer.isSpeaking();
-  },
+  }
 
-  isPaused() {
+  static isPaused() {
     return NativeSpeechSynthesizer.isPaused();
-  },
+  }
 
-  resume() {
+  static resume() {
     return NativeSpeechSynthesizer.resume();
-  },
+  }
 
-  pause() {
+  static pause() {
     return NativeSpeechSynthesizer.pause();
-  },
+  }
 
-  stop() {
+  static stop() {
     return NativeSpeechSynthesizer.stop();
-  },
+  }
 
-  speak(options) {
+  static speak(options) {
     return NativeSpeechSynthesizer.speak(options);
-  },
+  }
 
-  speakWithFinish(options){
+  static speakWithFinish(options) {
     return NativeSpeechSynthesizer.speakWithFinish(options);
-  },
+  }
 };
 
 module.exports = SpeechSynthesizer;
