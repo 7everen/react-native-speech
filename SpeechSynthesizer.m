@@ -1,7 +1,8 @@
 #import "SpeechSynthesizer.h"
 #import "RCTUtils.h"
 #import "RCTLog.h"
-#import "RCTEventDispatcher.h"
+#import <React/RCTEventDispatcher.h>
+
 
 @implementation SpeechSynthesizer
 
