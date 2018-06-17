@@ -141,17 +141,19 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void isPaused(final Promise promise) {
-        promise.reject("This function doesn\'t exists on android !");
+        promise.resolve(false);
     }
 
     @ReactMethod
     public void resume(final Promise promise) {
-        promise.reject("This function doesn\'t exists on android !");
+        FLog.e(ReactConstants.TAG, "resume function doesn\'t exists on android !");
+        promise.resolve(false);
     }
 
     @ReactMethod
     public void pause(final Promise promise) {
-        promise.reject("This function doesn\'t exists on android !");
+        FLog.e(ReactConstants.TAG, "pause function doesn\'t exists on android !");
+        promise.resolve(false);
     }
 
     @ReactMethod
@@ -169,8 +171,7 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
         }.execute();
     }
 
-    @ReactMethod
-    public void speak(final ReadableMap args, final Promise promise) {
+    private void _speak(final ReadableMap args, final Promise promise) {
         new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
             @Override
             protected void doInBackgroundGuarded(Void... params) {
@@ -191,9 +192,11 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
                         queueMethod = TextToSpeech.QUEUE_ADD;
                     }
                 }
+
                 if(args.getString("text") == null || text == ""){
                     promise.reject("Text cannot be blank");
                 }
+
                 try {
                     if (voice != null && voice != "") {
                         tts.setLanguage(new Locale(voice));
@@ -231,65 +234,13 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void speak(final ReadableMap args, final Promise promise) {
+        return _speak(args, promise);
+    }
+    
+
+    @ReactMethod
     public void speakWithFinish(final ReadableMap args, final Promise promise) {
-        new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
-            @Override
-            protected void doInBackgroundGuarded(Void... params) {
-                if(tts == null){
-                    init();
-                }
-                String text = args.hasKey("text") ? args.getString("text") : null;
-                String voice = args.hasKey("voice") ? args.getString("voice") : null;
-                Boolean forceStop = args.hasKey("forceStop") ?  args.getBoolean("forceStop") : true;
-                Float rate = args.hasKey("rate") ? (float)  args.getDouble("rate") : null;
-                int queueMethod = TextToSpeech.QUEUE_FLUSH;
-
-                if(tts.isSpeaking()){
-                    //Force to stop and start new speech
-                    if(forceStop != null && forceStop){
-                        tts.stop();
-                    } else {
-                        queueMethod = TextToSpeech.QUEUE_ADD;
-                    }
-                }
-
-                if(args.getString("text") == null || text == ""){
-                    promise.reject("Text cannot be blank");
-                }
-
-                try {
-                    if (voice != null && voice != "") {
-                        tts.setLanguage(new Locale(voice));
-                    } else {
-                        //Setting up default voice
-                        tts.setLanguage(new Locale("en"));
-                    }
-                    //Set the rate if provided by the user
-                    if(rate != null){
-                        tts.setPitch(rate);
-                    }
-
-                    int speakResult = 0;
-                    String speechUUID = UUID.randomUUID().toString();
-                    if(Build.VERSION.SDK_INT >= 21) {
-                        Bundle bundle = new Bundle();
-                        bundle.putCharSequence(Engine.KEY_PARAM_UTTERANCE_ID, "");
-                        ttsPromises.put(speechUUID, promise);
-                        speakResult = tts.speak(text, queueMethod, bundle, speechUUID);
-                    } else {
-                        HashMap<String, String> map = new HashMap<String, String>();
-                        map.put(Engine.KEY_PARAM_UTTERANCE_ID, speechUUID);
-                        ttsPromises.put(speechUUID, promise);
-                        speakResult = tts.speak(text, queueMethod, map);
-                    }
-
-                    if(speakResult < 0) {
-                        throw new Exception("Speak with finsh failed, make sure that TTS service is installed on you device");
-                    }
-                } catch (Exception e) {
-                    promise.reject(e.getMessage());
-                }
-            }
-        }.execute();
+        return _speak(args, promise);
     }
 }
