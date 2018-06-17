@@ -232,6 +232,7 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
             }
         }.execute();
     }
+    
 
     @ReactMethod
     public void speak(final ReadableMap args, final Promise promise) {
