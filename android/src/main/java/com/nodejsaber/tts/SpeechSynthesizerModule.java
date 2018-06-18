@@ -236,12 +236,12 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void speak(final ReadableMap args, final Promise promise) {
-        return _speak(args, promise);
+       _speak(args, promise);
     }
     
 
     @ReactMethod
     public void speakWithFinish(final ReadableMap args, final Promise promise) {
-        return _speak(args, promise);
+        _speak(args, promise);
     }
 }
