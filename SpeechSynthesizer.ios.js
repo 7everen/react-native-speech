@@ -1,57 +1,24 @@
-import { NativeModules }from 'react-native';
-var NativeSpeechSynthesizer = NativeModules.SpeechSynthesizer;
+import { NativeModules } from 'react-native';
+
+const NativeSpeechSynthesizer = NativeModules.SpeechSynthesizer;
 
 
-
-export default {
-  speak(options) {
-    return new Promise(function(resolve, reject) {
-      NativeSpeechSynthesizer.speakUtterance(options, function(error, success) {
+class SpeechSynthesizer {
+  static supportedVoices() {
+    return new Promise(((resolve, reject) => {
+      NativeSpeechSynthesizer.speechVoices((error, locales) => {
         if (error) {
           return reject(error);
         }
 
-        resolve(true);
+        resolve(locales);
       });
-    });
-  },
+    }));
+  }
 
-  speakWithFinish(options) {
-    return new Promise(function (resolve, reject) {
-      NativeSpeechSynthesizer.speakUtteranceWithFinish(options, function (error, success) {
-        if (error) {
-          return reject(error);
-        }
-        resolve(true);
-      });
-    });
-  },
-
-  stop: NativeSpeechSynthesizer.stopSpeakingAtBoundary,
-
-  pause: NativeSpeechSynthesizer.pauseSpeakingAtBoundary,
-
-  resume: NativeSpeechSynthesizer.continueSpeakingAtBoundary,
-
-  isPaused() {
-    return new Promise(function(resolve, reject) {
-      NativeSpeechSynthesizer.paused(function(error, paused) {
-        if (error) {
-          return reject(error);
-        }
-
-        if (paused === 1) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      });
-    });
-  },
-
-  isSpeaking() {
-    return new Promise(function(resolve, reject) {
-      NativeSpeechSynthesizer.speaking(function(error, speaking) {
+  static isSpeaking() {
+    return new Promise(((resolve, reject) => {
+      NativeSpeechSynthesizer.speaking((error, speaking) => {
         if (error) {
           return reject(error);
         }
@@ -62,19 +29,59 @@ export default {
           resolve(false);
         }
       });
-    });
-  },
+    }));
+  }
 
-  supportedVoices() {
-    return new Promise(function(resolve, reject) {
-      NativeSpeechSynthesizer.speechVoices(function(error, locales) {
+  static isPaused() {
+    return new Promise(((resolve, reject) => {
+      NativeSpeechSynthesizer.paused((error, paused) => {
         if (error) {
           return reject(error);
         }
 
-        resolve(locales);
+        if (paused === 1) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
       });
-    });
+    }));
   }
-};
 
+  static resume() {
+    return NativeSpeechSynthesizer.continueSpeakingAtBoundary();
+  }
+
+  static pause() {
+    return NativeSpeechSynthesizer.pauseSpeakingAtBoundary();
+  }
+
+  static stop() {
+    return NativeSpeechSynthesizer.stopSpeakingAtBoundary();
+  }
+
+  static speak(options) {
+    return new Promise(((resolve, reject) => {
+      NativeSpeechSynthesizer.speakUtterance(options, (error, success) => {
+        if (error) {
+          return reject(error);
+        }
+
+        resolve(true);
+      });
+    }));
+  }
+
+  static speakWithFinish(options) {
+    return new Promise(((resolve, reject) => {
+      NativeSpeechSynthesizer.speakUtteranceWithFinish(options, (error, success) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(true);
+      });
+    }));
+  }
+}
+
+module.exports = SpeechSynthesizer;
