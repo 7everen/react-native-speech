@@ -1,6 +1,6 @@
 {
   "name": "ejoy-react-native-speech",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "A text-to-speech library for React Native.",
   "main": "index.js",
   "scripts": {
