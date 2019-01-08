@@ -9,9 +9,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.GuardedAsyncTask;
-import com.facebook.react.common.ReactConstants;
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter;
 
 import java.util.Map;
@@ -25,11 +23,13 @@ import android.speech.tts.UtteranceProgressListener;
 import android.content.Context;
 import android.annotation.TargetApi;
 import android.os.Bundle;
+import android.util.Log;
 import android.speech.tts.TextToSpeech.Engine;
 
 class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
 
     private static TextToSpeech tts;
+    private static String TAG = "react-native-tts";
 	private boolean IS_READY;
     private Context context;
     private Map<String, Promise> ttsPromises = new HashMap<String, Promise>();
@@ -39,6 +39,13 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
         this.context = reactContext;
         this.init();
     }
+
+
+    private void sendEvent(String eventName, Object params) {
+        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(eventName,
+            params);
+    }
+
 
     @Override
     public String getName() {
@@ -50,30 +57,28 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
         tts = new TextToSpeech(getReactApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                
                 if(status == TextToSpeech.SUCCESS){
 					IS_READY = true;
                 } else {
                     IS_READY = false;
-                    FLog.e(ReactConstants.TAG,"Not able to initialized the TTS object");
+                    Log.e(TAG, "Not able to initialized the TTS object");
                 }
             }
         });
+
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
             public void onStart(String utteranceId) {
                 WritableMap map = Arguments.createMap();
                 map.putString("utteranceId", utteranceId);
-                getReactApplicationContext().getJSModule(RCTDeviceEventEmitter.class)
-                    .emit("StartSpeechUtterance", map);
+                sendEvent("StartSpeechUtterance", map);
             }
 
             @Override
             public void onDone(String utteranceId) {
                 WritableMap map = Arguments.createMap();
                 map.putString("utteranceId", utteranceId);
-                getReactApplicationContext().getJSModule(RCTDeviceEventEmitter.class)
-                    .emit("FinishSpeechUtterance", map);
+                sendEvent("FinishSpeechUtterance", map);
                 Promise promise = ttsPromises.get(utteranceId);
                 if (promise != null) {
                     promise.resolve(utteranceId);
@@ -81,38 +86,34 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
                 }
             }
 
-
             @Override
-            public void onError(String utteranceId) {
+            public void onError(String utteranceId, int errorCode) {
                 WritableMap map = Arguments.createMap();
                 map.putString("utteranceId", utteranceId);
-                getReactApplicationContext().getJSModule(RCTDeviceEventEmitter.class)
-                    .emit("ErrorSpeechUtterance", map);
+                map.putInt("errorCode", errorCode);
+                sendEvent("ErrorSpeechUtterance", map);
                 Promise promise = ttsPromises.get(utteranceId);
                 if (promise != null) {
                     promise.reject(utteranceId);
                     ttsPromises.remove(utteranceId);
-                } 
-
+                }
             }
 
             @Override
 			public void onStop(String utteranceId, boolean interrupted) {
                 WritableMap map = Arguments.createMap();
                 map.putString("utteranceId", utteranceId);
-                getReactApplicationContext().getJSModule(RCTDeviceEventEmitter.class)
-                .emit("StopSpeechUtterance", map);
+                map.putBoolean("interrupted", interrupted);
+                sendEvent("StopSpeechUtterance", map);
                 Promise promise = ttsPromises.get(utteranceId);
                 if (promise != null) {
                     promise.resolve(utteranceId);
                     ttsPromises.remove(utteranceId);
                 }
 			}
-
-
-
         });
     }
+
 
     @ReactMethod
     public void supportedVoices(final Promise promise) {
@@ -139,6 +140,7 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
         }.execute();
     }
 
+
     @ReactMethod
     public void isSpeaking(final Promise promise) {
         new GuardedAsyncTask<Void,Void>(getReactApplicationContext()){
@@ -157,22 +159,26 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
         }.execute();
     }
 
+
     @ReactMethod
     public void isPaused(final Promise promise) {
         promise.resolve(false);
     }
 
+
     @ReactMethod
     public void resume(final Promise promise) {
-        FLog.e(ReactConstants.TAG, "resume function doesn\'t exists on android !");
+        Log.e(TAG, "resume function doesn\'t exists on android !");
         promise.resolve(false);
     }
 
+
     @ReactMethod
     public void pause(final Promise promise) {
-        FLog.e(ReactConstants.TAG, "pause function doesn\'t exists on android !");
+        Log.e(TAG, "pause function doesn\'t exists on android !");
         promise.resolve(false);
     }
+
 
     @ReactMethod
     public void stop(final Promise promise) {
@@ -188,6 +194,7 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
             }
         }.execute();
     }
+    
 
     private void _speak(final ReadableMap args, final Promise promise) {
         new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
@@ -204,14 +211,14 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
 
                 if(tts.isSpeaking()){
                     //Force to stop and start new speech
-                    if(forceStop != null && forceStop){
+                    if(forceStop == true && forceStop){
                         tts.stop();
                     } else {
                         queueMethod = TextToSpeech.QUEUE_ADD;
                     }
                 }
 
-                if(args.getString("text") == null || text == ""){
+                if(text == null || text == ""){
                     promise.reject("Text cannot be blank");
                 }
 
@@ -227,7 +234,7 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
                     }
                     //Set the rate if provided by the user
                     if(rate != null){
-                        tts.setPitch(rate);
+                        tts.setSpeechRate(rate);
                     }
 
                     int speakResult = 0;
