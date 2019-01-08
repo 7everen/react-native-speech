@@ -42,7 +42,7 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
 
 
     private void sendEvent(String eventName, Object params) {
-        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(eventName,
+        getReactApplicationContext().getJSModule(RCTDeviceEventEmitter.class).emit(eventName,
             params);
     }
 
@@ -83,6 +83,20 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
                 if (promise != null) {
                     promise.resolve(utteranceId);
                     ttsPromises.remove(utteranceId);
+                }
+            }
+
+            @Override
+            public void onError(String utteranceId) {
+                if(Build.VERSION.SDK_INT < 21) {
+                WritableMap map = Arguments.createMap();
+                map.putString("utteranceId", utteranceId);
+                sendEvent("ErrorSpeechUtterance", map);
+                Promise promise = ttsPromises.get(utteranceId);
+                    if (promise != null) {
+                        promise.reject(utteranceId);
+                        ttsPromises.remove(utteranceId);
+                    }
                 }
             }
 
