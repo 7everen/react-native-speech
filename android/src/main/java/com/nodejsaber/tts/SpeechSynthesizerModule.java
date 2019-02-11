@@ -110,7 +110,7 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
                     for (Locale locale : locales) {
                         int res = tts.isLanguageAvailable(locale);
                         if(res == TextToSpeech.LANG_COUNTRY_AVAILABLE){
-                            data.pushString(locale.getLanguage());
+                            data.pushString(locale.getLanguage()+"-"+locale.getCountry());
                         }
                     }
                     promise.resolve(data);
