@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech.Engine;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
 
 import com.facebook.common.logging.FLog;
 
@@ -105,13 +106,23 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
                     if(tts == null){
                         init();
                     }
+
+                    Set<Voice> voices = tts.getVoices();
                     Locale[] locales = Locale.getAvailableLocales();
                     WritableArray data = Arguments.createArray();
-                    for (Locale locale : locales) {
-                        int res = tts.isLanguageAvailable(locale);
-                        if(res == TextToSpeech.LANG_COUNTRY_AVAILABLE){
-                            data.pushString(locale.getLanguage()+"-"+locale.getCountry());
+                    for (Voice voice : voices) {
+                        Locale locale = voice.getLocale();
+                        String res = locale.getLanguage();
+                        String c = locale.getCountry();
+
+                        if(c != null && c.length() > 0){
+                            res = res + "-" + c;
+                            String v = locale.getVariant();
+                            if(v != null && v.length() > 0){
+                                res = res + "-" + v;
+                            }
                         }
+                        data.pushString(res);
                     }
                     promise.resolve(data);
                 } catch (Exception e) {
@@ -198,8 +209,18 @@ class SpeechSynthesizerModule extends ReactContextBaseJavaModule {
                 }
 
                 try {
-                    if (voice != null && voice != "") {
-                        tts.setLanguage(new Locale(voice));
+                    if (voice != null && voice.length() > 0) {
+                        String[] parts = voice.split("-");
+                        String lang = parts[0];
+                        String country = "";
+                        String variant = "";
+                        if(parts.length > 0){
+                            country = parts[1];
+                            if(parts.length > 1){
+                                variant = parts[2];
+                            }
+                        }
+                        tts.setLanguage(new Locale(lang, country, variant));
                     } else {
                         //Setting up default voice
                         tts.setLanguage(new Locale("en"));
